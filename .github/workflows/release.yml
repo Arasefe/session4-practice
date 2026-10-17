@@ -1,0 +1,65 @@
+name: release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# One release at a time; a newer merge waits instead of racing the deploy.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - name: Stamp the commit into the build
+        run: echo "$GITHUB_SHA" > dist/version.txt
+      - name: Production dependencies only
+        run: npm ci --omit=dev
+      - name: Package
+        run: tar czf invoice.tar.gz dist node_modules package.json
+      - name: Fingerprint
+        run: sha256sum invoice.tar.gz > invoice.tar.gz.sha256
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-${{ github.sha }}
+          path: invoice.tar.gz*
+
+  deploy:
+    needs: build
+    # Skipped until the production environment has WEB01_HOST set (Lab 7).
+    if: vars.WEB01_HOST != ''
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: release-${{ github.sha }}
+      - name: Verify the fingerprint
+        run: sha256sum -c invoice.tar.gz.sha256
+      - name: Load the deploy key
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+          WEB01_HOSTKEY: ${{ vars.WEB01_HOSTKEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/id_ed25519
+          printf '%s\n' "$WEB01_HOSTKEY" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/id_ed25519
+      - name: Ship and release
+        env:
+          WEB01_HOST: ${{ vars.WEB01_HOST }}
+        run: |
+          scp invoice.tar.gz invoice.tar.gz.sha256 "deploy@${WEB01_HOST}:/tmp/"
+          ssh "deploy@${WEB01_HOST}" release "$GITHUB_SHA"

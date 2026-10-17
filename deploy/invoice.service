@@ -1,0 +1,14 @@
+# Install on web-01 as /etc/systemd/system/invoice.service
+[Unit]
+Description=Invoice API
+After=network.target
+
+[Service]
+User=node
+WorkingDirectory=/srv/invoice/current
+ExecStart=/usr/bin/node /srv/invoice/current/dist/app.js
+Environment=PORT=3000
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

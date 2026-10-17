@@ -1,0 +1,16 @@
+{
+  "name": "invoice-svc",
+  "version": "1.6.0",
+  "private": true,
+  "type": "module",
+  "description": "Session 4 practice app: a tiny invoice API for the CI/CD pipeline labs",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test",
+    "build": "node scripts/build.js",
+    "start": "node dist/app.js"
+  },
+  "dependencies": {
+    "round-to": "6.0.0"
+  }
+}
