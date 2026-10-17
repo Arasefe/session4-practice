@@ -45,5 +45,4 @@ The checks only appear in the search box after they have run once. On GitHub Fre
 
 - **Red build:** change an expected total in `test/invoice.test.js`
 - **Red gate:** `npm install lodash@4.17.20` → CVE-2021-23337 fails `dependency-scan`
-- **Rollback:** set the port to 3001 in `src/config.js`; tests pass, the health check fails, `release` rolls back
-- **Finale race:** the invoice footer says "Acme Corp"; it should say "Acme Ltd"
+- **Rollback:** set the port to 3001 in `src/config.js`; tests pass, the health check fails, `release` rol
