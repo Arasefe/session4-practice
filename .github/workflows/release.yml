@@ -61,5 +61,6 @@ jobs:
         env:
           WEB01_HOST: ${{ vars.WEB01_HOST }}
         run: |
-          scp invoice.tar.gz invoice.tar.gz.sha256 "deploy@${WEB01_HOST}:/tmp/"
-          ssh "deploy@${WEB01_HOST}" release "$GITHUB_SHA"
+          # The hash recorded at build time travels as an argument, not as a file next to the tarball.
+          scp invoice.tar.gz "deploy@${WEB01_HOST}:incoming/"
+          ssh "deploy@${WEB01_HOST}" release "$GITHUB_SHA" "$(cut -d' ' -f1 invoice.tar.gz.sha256)"

@@ -34,7 +34,7 @@ The checks only appear in the search box after they have run once. On GitHub Fre
 `deploy` is skipped until `WEB01_HOST` is set.
 
 1. `ssh-keygen -t ed25519 -f pipeline` (no passphrase); put `pipeline.pub` as the only line in `/home/deploy/.ssh/authorized_keys` on web-01
-2. On web-01: install `deploy/release.sh` as `/usr/local/bin/release`, `deploy/invoice.service` as the systemd unit, and the sudoers rule from the top of `release.sh`
+2. On web-01: install `deploy/release.sh` as `/usr/local/bin/release`, `deploy/invoice.service` as the systemd unit, and the sudoers rule from the top of `release.sh`; then, as deploy, `mkdir -m 700 ~/incoming` (uploads land there, never in shared `/tmp`)
 3. Settings → Environments → `production`: deployment branches = `main` only
    - secret `DEPLOY_KEY` = contents of `pipeline` (then delete the local file)
    - variable `WEB01_HOST` = web-01's address
